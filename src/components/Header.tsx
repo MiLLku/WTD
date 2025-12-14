@@ -1,199 +1,146 @@
-﻿import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+﻿import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 
 const Header = () => {
-    const [isScrolled, setIsScrolled] = useState(false);
-    const location = useLocation();
     const navigate = useNavigate();
-    const { user, signOut } = useAuth();
+    const location = useLocation();
+    const { user } = useAuth();
 
-    useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY > 50) {
-                setIsScrolled(true);
-            } else {
-                setIsScrolled(false);
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
-
-    const handleLogout = async () => {
-        const result = await signOut();
-        if (result.success) {
-            alert('로그아웃되었습니다.');
-            navigate('/');
-        }
-    };
+    const isActive = (path: string) => location.pathname === path;
 
     return (
-        <Nav $scrolled={isScrolled}>
-            <Logo onClick={() => navigate('/')}>
-                BUKFLIX <span>DEMO</span>
-            </Logo>
+        <Container>
+            <Logo onClick={() => navigate('/')}>BUKFLIX</Logo>
 
-            <Menu>
-                <MenuItem to="/" $active={location.pathname === '/'}>홈</MenuItem>
-                <MenuItem to="/popular" $active={location.pathname === '/popular'}>대세 콘텐츠</MenuItem>
-                <MenuItem to="/search" $active={location.pathname === '/search'}>찾아보기</MenuItem>
-                <MenuItem to="/wishlist" $active={location.pathname === '/wishlist'}>내가 찜한 리스트</MenuItem>
-                <MenuItem to="/firebase-test" $active={location.pathname === '/firebase-test'}>🔥 테스트</MenuItem>
-            </Menu>
+            <Nav>
+                <NavItem $active={isActive('/')} onClick={() => navigate('/')}>
+                    홈
+                </NavItem>
+                <NavItem $active={isActive('/search')} onClick={() => navigate('/search')}>
+                    검색
+                </NavItem>
+                <NavItem $active={isActive('/wishlist')} onClick={() => navigate('/wishlist')}>
+                    내가 찜한 콘텐츠
+                </NavItem>
+            </Nav>
 
             <RightSection>
                 {user ? (
-                    <>
-                        <UserInfo>
-                            <Avatar src={user.photoURL || '/default-avatar.png'} alt="avatar" />
-                            <UserName>{user.displayName}</UserName>
-                        </UserInfo>
-                        <AuthButton
-                            as={motion.button}
-                            onClick={handleLogout}
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            로그아웃
-                        </AuthButton>
-                    </>
+                    <UserSection>
+                        <Avatar
+                            src={user.photoURL || '/default-avatar.png'}
+                            alt={user.displayName || 'User'}
+                            onClick={() => navigate('/profile')}
+                        />
+                        <UserName>{user.displayName}</UserName>
+                    </UserSection>
                 ) : (
-                    <AuthButton
-                        to="/signin"
-                        whileHover={{ scale: 1.1, backgroundColor: '#e50914' }}
-                        whileTap={{ scale: 0.95 }}
-                    >
+                    <SignInButton onClick={() => navigate('/signin')}>
                         로그인
-                    </AuthButton>
+                    </SignInButton>
                 )}
             </RightSection>
-        </Nav>
+        </Container>
     );
 };
 
 export default Header;
 
 // Styled Components
-interface NavProps {
-    $scrolled: boolean;
-}
-
-const Nav = styled.nav<NavProps>`
+const Container = styled.header`
     position: fixed;
     top: 0;
-    width: 100%;
+    left: 0;
+    right: 0;
     height: 68px;
-    padding: 0 40px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.7) 10%, transparent);
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    z-index: 100;
-    background-color: ${(props) => (props.$scrolled ? '#141414' : 'transparent')};
-    transition: background-color 0.3s ease-in-out;
+    padding: 0 40px;
+    z-index: 1000;
+    transition: background-color 0.3s;
 
-    @media (max-width: 768px) {
-        padding: 0 20px;
-        font-size: 14px;
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.9);
     }
 `;
 
-const Logo = styled.div`
-    font-size: 25px;
-    font-weight: bold;
+const Logo = styled.h1`
     color: #e50914;
+    font-size: 2rem;
+    font-weight: bold;
     cursor: pointer;
-    margin-right: 25px;
+    margin-right: 40px;
 
-    span {
-        color: white;
-        font-size: 14px;
-        font-weight: normal;
+    &:hover {
+        color: #f40612;
     }
 `;
 
-const Menu = styled.div`
+const Nav = styled.nav`
     display: flex;
     gap: 20px;
     flex: 1;
-    align-items: center;
-
-    @media (max-width: 768px) {
-        display: flex;
-        gap: 10px;
-        font-size: 12px;
-        overflow-x: auto;
-        white-space: nowrap;
-        margin-left: 10px;
-        margin-right: 10px;
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-        &::-webkit-scrollbar {
-            display: none;
-        }
-    }
 `;
 
-interface MenuItemProps {
+interface NavItemProps {
     $active: boolean;
 }
 
-const MenuItem = styled(Link)<MenuItemProps>`
-    color: ${(props) => (props.$active ? '#fff' : '#b3b3b3')};
-    font-weight: ${(props) => (props.$active ? 'bold' : 'normal')};
+const NavItem = styled.span<NavItemProps>`
+    color: ${(props) => (props.$active ? 'white' : '#e5e5e5')};
+    font-size: 1rem;
+    cursor: pointer;
     transition: color 0.3s;
+    font-weight: ${(props) => (props.$active ? 'bold' : 'normal')};
 
     &:hover {
-        color: #fff;
+        color: #b3b3b3;
     }
 `;
 
 const RightSection = styled.div`
     display: flex;
     align-items: center;
-    gap: 15px;
 `;
 
-const UserInfo = styled.div`
+const UserSection = styled.div`
     display: flex;
     align-items: center;
-    gap: 10px;
-
-    @media (max-width: 768px) {
-        display: none;
-    }
+    gap: 12px;
 `;
 
 const Avatar = styled.img`
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 2px solid #e50914;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid #e50914;
+    cursor: pointer;
+    transition: transform 0.2s;
+
+    &:hover {
+        transform: scale(1.1);
+    }
 `;
 
 const UserName = styled.span`
-  color: white;
-  font-size: 0.9rem;
-  max-width: 120px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+    color: white;
+    font-size: 0.95rem;
 `;
 
-const AuthButton = styled(motion(Link))`
+const SignInButton = styled.button`
     background-color: #e50914;
     color: white;
-    padding: 7px 17px;
-    border-radius: 3px;
-    font-size: 14px;
-    font-weight: bold;
     border: none;
+    padding: 8px 20px;
+    border-radius: 4px;
     cursor: pointer;
-    text-decoration: none;
-    display: inline-block;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s;
+
+    &:hover {
+        background-color: #f40612;
+    }
 `;
