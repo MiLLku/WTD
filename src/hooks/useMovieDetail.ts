@@ -1,42 +1,43 @@
 import { useState, useEffect } from 'react';
 import type { MovieDetail } from '../types/types';
-export type { Review } from '../types/types';
-export const useMovieDetail = (movieId: string) => {
+
+export const useMovieDetail = (movieId: string, isTv: boolean = false) => {
     const [movie, setMovie] = useState<MovieDetail | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
+        setMovie(null);
+        setLoading(true);
+        setError(null);
+
         const fetchMovieDetail = async () => {
             try {
-                setLoading(true);
-                setError(null);
-
                 const apiKey = import.meta.env.VITE_TMDB_API_KEY;
-
-                if (!apiKey) {
-                    throw new Error('TMDB API 키가 설정되지 않았습니다.');
-                }
-
-                console.log('영화 정보 로딩 중... ID:', movieId);
+                const endpoint = isTv ? 'tv' : 'movie'; // ✅ TV와 영화 구분
 
                 const response = await fetch(
-                    `https://api.themoviedb.org/3/movie/${movieId}?api_key=${apiKey}&language=ko-KR`
+                    `https://api.themoviedb.org/3/${endpoint}/${movieId}?api_key=${apiKey}&language=ko-KR`
                 );
 
                 if (!response.ok) {
-                    if (response.status === 404) {
-                        throw new Error('영화를 찾을 수 없습니다.');
-                    }
-                    throw new Error(`API 오류: ${response.status}`);
+                    throw new Error('정보를 찾을 수 없습니다.');
                 }
 
                 const data = await response.json();
-                console.log('영화 정보 로딩 완료:', data.title);
-                setMovie(data);
-            } catch (err) {
-                console.error('영화 정보 로딩 실패:', err);
-                setError(err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.');
+
+                // ✅ TV 데이터일 경우 영화 데이터 구조로 변환 (title이 없고 name이 있음)
+                const normalizedData = {
+                    ...data,
+                    title: data.title || data.name, // TV쇼 이름(name)을 title로 사용
+                    release_date: data.release_date || data.first_air_date, // 방영일을 개봉일로 사용
+                    runtime: data.runtime || (data.episode_run_time ? data.episode_run_time[0] : null), // 러닝타임 처리
+                };
+
+                setMovie(normalizedData);
+            } catch (err: any) {
+                console.error('로딩 실패:', err);
+                setError(err.message);
             } finally {
                 setLoading(false);
             }
@@ -44,11 +45,8 @@ export const useMovieDetail = (movieId: string) => {
 
         if (movieId) {
             fetchMovieDetail();
-        } else {
-            setLoading(false);
-            setError('영화 ID가 없습니다.');
         }
-    }, [movieId]);
+    }, [movieId, isTv]); // ✅ isTv 의존성 추가
 
     return { movie, loading, error };
 };

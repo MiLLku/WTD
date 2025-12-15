@@ -87,17 +87,21 @@ export const useWishlist = () => {
                 alert(`${movie.title || movie.name}이(가) 찜 목록에서 삭제되었습니다.`);
             } else {
                 // 추가
+                // ✅ [핵심 수정] Firestore는 undefined 값을 저장할 수 없으므로 null로 변환하거나 제거해야 함
+                const safeMovieData = JSON.parse(JSON.stringify(movie)); // 간단하게 undefined 제거
+
                 await setDoc(movieRef, {
-                    ...movie,
+                    ...safeMovieData,
                     addedAt: serverTimestamp(),
                     status: 'want_to_watch',
                 });
                 console.log('✅ Firestore 추가:', movie.title);
                 alert(`${movie.title || movie.name}이(가) 찜 목록에 추가되었습니다!`);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('❌ Firestore 오류:', error);
-            alert('오류가 발생했습니다. 다시 시도해주세요.');
+            // 에러 메시지를 더 자세히 표시하여 디버깅 도움
+            alert(`오류가 발생했습니다: ${error.message}`);
         }
     };
 

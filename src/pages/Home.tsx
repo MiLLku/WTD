@@ -12,7 +12,6 @@ const Home = () => {
     const handleMovieClick = (movie: Movie, category: string) => {
         setSelectedMovie(movie);
         setLastClickedCategory(category);
-        console.log(`[Bottom-Up Event] ${category}에서 "${movie.title || movie.name}" 클릭됨`);
     };
 
     return (
@@ -21,7 +20,7 @@ const Home = () => {
 
             {selectedMovie && (
                 <SelectedMovieInfo>
-                    <InfoTitle>🎬 최근 클릭한 영화</InfoTitle>
+                    <InfoTitle>🎬 최근 클릭한 콘텐츠</InfoTitle>
                     <InfoContent>
                         <strong>카테고리:</strong> {lastClickedCategory} <br />
                         <strong>제목:</strong> {selectedMovie.title || selectedMovie.name} <br />
@@ -30,11 +29,13 @@ const Home = () => {
                 </SelectedMovieInfo>
             )}
 
+            {/* ✅ 넷플릭스 오리지널은 TV쇼이므로 isTv 속성 추가 */}
             <Row
                 title="넷플릭스 오리지널"
                 id="NO"
                 fetchUrl={requests.fetchNetflixOriginals}
                 isLargeRow
+                isTv={true}
                 onMovieClick={(movie) => handleMovieClick(movie, '넷플릭스 오리지널')}
             />
             <Row

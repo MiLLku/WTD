@@ -1,34 +1,25 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom'; // ✅ useLocation 추가
 import styled from 'styled-components';
 import { useMovieDetail } from '../hooks/useMovieDetail';
 import { useReviews } from '../hooks/useReviews';
 import { useAuth } from '../hooks/useAuth';
 import ChatRoom from '../components/ChatRoom';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const MovieReview = () => {
     const { movieId } = useParams<{ movieId: string }>();
+    const location = useLocation(); // ✅ 위치 정보 가져오기
+    // ✅ 전달받은 state에서 isTv 값을 확인 (기본값 false)
+    const isTv = location.state?.isTv || false;
+
     const { user } = useAuth();
-    const { movie, loading: movieLoading, error: movieError } = useMovieDetail(movieId || '');
+    // ✅ 훅에 isTv 정보 전달
+    const { movie, loading: movieLoading, error: movieError } = useMovieDetail(movieId || '', isTv);
     const { reviews, loading: reviewsLoading, error: reviewsError, addReview } = useReviews(Number(movieId));
 
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
     const [submitting, setSubmitting] = useState(false);
-
-    // ✅ 상세 디버깅 로그
-    useEffect(() => {
-        console.log('=== MovieReview 디버깅 ===');
-        console.log('1. URL에서 받은 movieId:', movieId);
-        console.log('2. Number로 변환한 movieId:', Number(movieId));
-        console.log('3. 현재 로딩된 영화:', movie);
-        console.log('4. 영화 제목:', movie?.title);
-        console.log('5. 리뷰 개수:', reviews.length);
-        console.log('6. 리뷰 데이터:', reviews);
-        console.log('7. 리뷰 로딩 상태:', reviewsLoading);
-        console.log('8. 리뷰 에러:', reviewsError);
-        console.log('========================');
-    }, [movieId, movie, reviews, reviewsLoading, reviewsError]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -42,7 +33,6 @@ const MovieReview = () => {
         }
 
         setSubmitting(true);
-        // ✅ 영화 제목도 함께 전달
         const result = await addReview(rating, comment, movie?.title || movie?.name);
         if (result.success) {
             setRating(5);
@@ -58,7 +48,7 @@ const MovieReview = () => {
         return (
             <LoadingContainer>
                 <Spinner />
-                <LoadingText>영화 정보를 불러오는 중...</LoadingText>
+                <LoadingText>정보를 불러오는 중...</LoadingText>
             </LoadingContainer>
         );
     }
@@ -66,7 +56,7 @@ const MovieReview = () => {
     if (movieError || !movie) {
         return (
             <ErrorContainer>
-                <ErrorText>❌ {movieError || '영화 정보를 찾을 수 없습니다.'}</ErrorText>
+                <ErrorText>❌ {movieError || '정보를 찾을 수 없습니다.'}</ErrorText>
             </ErrorContainer>
         );
     }
@@ -137,7 +127,7 @@ const MovieReview = () => {
                             <CommentTextarea
                                 value={comment}
                                 onChange={(e) => setComment(e.target.value)}
-                                placeholder="이 영화에 대한 생각을 남겨주세요..."
+                                placeholder="이 콘텐츠에 대한 생각을 남겨주세요..."
                                 maxLength={500}
                             />
 

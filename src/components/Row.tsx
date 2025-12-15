@@ -9,42 +9,34 @@ interface RowProps {
     fetchUrl: string;
     isLargeRow?: boolean;
     id: string;
+    isTv?: boolean; // ✅ TV 여부 prop 추가
     onMovieClick?: (movie: Movie) => void;
 }
 
-const Row = ({ title, fetchUrl, isLargeRow = false, id, onMovieClick }: RowProps) => {
+const Row = ({ title, fetchUrl, isLargeRow = false, id, isTv = false, onMovieClick }: RowProps) => {
     const navigate = useNavigate();
     const { data: movies } = useFetch(fetchUrl);
     const { toggleWishlist } = useWishlist();
 
-    // ✅ 영화 클릭 시 올바른 ID로 리뷰 페이지 이동
-    const handleMovieClick = (movie: Movie, e: React.MouseEvent) => {
-        e.stopPropagation();
-        // Shift 키를 누르고 클릭하면 찜하기
-        if (e.shiftKey) {
-            toggleWishlist(movie);
-            if (onMovieClick) {
-                onMovieClick(movie);
-            }
-        } else {
-            // 일반 클릭은 리뷰 페이지로 이동 (올바른 movie.id 사용)
-            console.log('영화 클릭:', movie.title || movie.name, 'ID:', movie.id);
-            navigate(`/movie/${movie.id}/reviews`);
-        }
+    const handleMovieClick = (movie: Movie) => {
+        // ✅ 제목이 없고 이름만 있으면 TV쇼로 간주 (또는 props로 전달받은 값 사용)
+        const isTvShow = isTv || (!movie.title && !!movie.name);
+
+        navigate(`/movie/${movie.id}/reviews`, {
+            state: { isTv: isTvShow } // ✅ 페이지 이동 시 TV 정보 전달
+        });
+
+        if (onMovieClick) onMovieClick(movie);
     };
 
-    const handleReviewClick = (e: React.MouseEvent, movieId: number) => {
+    const handleReviewClick = (e: React.MouseEvent, movie: Movie) => {
         e.stopPropagation();
-        console.log('리뷰 버튼 클릭 - 영화 ID:', movieId);
-        navigate(`/movie/${movieId}/reviews`);
+        handleMovieClick(movie);
     };
 
     const handleWishlistClick = (e: React.MouseEvent, movie: Movie) => {
         e.stopPropagation();
         toggleWishlist(movie);
-        if (onMovieClick) {
-            onMovieClick(movie);
-        }
     };
 
     return (
@@ -59,13 +51,12 @@ const Row = ({ title, fetchUrl, isLargeRow = false, id, onMovieClick }: RowProps
                                 isLargeRow ? movie.poster_path : movie.backdrop_path
                             }`}
                             alt={movie.title || movie.name}
-                            onClick={(e) => handleMovieClick(movie, e)}
+                            onClick={() => handleMovieClick(movie)}
                         />
-                        {/* ✅ 호버 시 버튼 표시 */}
-                        <HoverOverlay>
+                        <HoverOverlay onClick={() => handleMovieClick(movie)}>
                             <OverlayTitle>{movie.title || movie.name}</OverlayTitle>
                             <ButtonGroup>
-                                <ActionButton onClick={(e) => handleReviewClick(e, movie.id)}>
+                                <ActionButton onClick={(e) => handleReviewClick(e, movie)}>
                                     💬 리뷰/채팅
                                 </ActionButton>
                                 <ActionButton onClick={(e) => handleWishlistClick(e, movie)}>
@@ -135,7 +126,7 @@ const HoverOverlay = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.9);
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -144,6 +135,7 @@ const HoverOverlay = styled.div`
     transition: opacity 0.3s;
     border-radius: 4px;
     padding: 10px;
+    cursor: pointer;
 
     ${PosterWrapper}:hover & {
         opacity: 1;
