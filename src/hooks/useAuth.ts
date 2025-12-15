@@ -83,5 +83,6 @@ export const useAuth = () => {
         signInWithGoogle,
         signInWithGithub,
         signOut,
+        logout: signOut, // ✅ Profile.tsx에서 사용하는 logout alias
     };
 };

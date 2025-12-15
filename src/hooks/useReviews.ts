@@ -62,7 +62,7 @@ export const useReviews = (movieId: number) => {
         }
     }, [movieId]);
 
-    const addReview = async (rating: number, comment: string) => {
+    const addReview = async (rating: number, comment: string, movieTitle?: string) => {
         if (!user) {
             return { success: false, message: '로그인이 필요합니다.' };
         }
@@ -72,7 +72,7 @@ export const useReviews = (movieId: number) => {
         }
 
         try {
-            console.log('리뷰 등록 시작:', { movieId, rating, comment });
+            console.log('리뷰 등록 시작:', { movieId, rating, comment, movieTitle });
 
             const reviewData = {
                 movieId,
@@ -81,7 +81,11 @@ export const useReviews = (movieId: number) => {
                 userPhoto: user.photoURL || null,
                 rating,
                 comment: comment.trim(),
+                content: comment.trim(), // ✅ ReviewCard에서 사용
                 createdAt: Date.now(),
+                spoiler: false, // ✅ 기본값
+                likes: [], // ✅ 빈 배열로 시작
+                movieTitle: movieTitle || '', // ✅ 영화 제목 저장
             };
 
             console.log('Firestore에 저장할 데이터:', reviewData);

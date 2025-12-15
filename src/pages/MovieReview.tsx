@@ -4,17 +4,31 @@ import { useMovieDetail } from '../hooks/useMovieDetail';
 import { useReviews } from '../hooks/useReviews';
 import { useAuth } from '../hooks/useAuth';
 import ChatRoom from '../components/ChatRoom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const MovieReview = () => {
     const { movieId } = useParams<{ movieId: string }>();
     const { user } = useAuth();
     const { movie, loading: movieLoading, error: movieError } = useMovieDetail(movieId || '');
-    const { reviews, loading: reviewsLoading, addReview } = useReviews(Number(movieId));
+    const { reviews, loading: reviewsLoading, error: reviewsError, addReview } = useReviews(Number(movieId));
 
     const [rating, setRating] = useState(5);
     const [comment, setComment] = useState('');
     const [submitting, setSubmitting] = useState(false);
+
+    // ✅ 상세 디버깅 로그
+    useEffect(() => {
+        console.log('=== MovieReview 디버깅 ===');
+        console.log('1. URL에서 받은 movieId:', movieId);
+        console.log('2. Number로 변환한 movieId:', Number(movieId));
+        console.log('3. 현재 로딩된 영화:', movie);
+        console.log('4. 영화 제목:', movie?.title);
+        console.log('5. 리뷰 개수:', reviews.length);
+        console.log('6. 리뷰 데이터:', reviews);
+        console.log('7. 리뷰 로딩 상태:', reviewsLoading);
+        console.log('8. 리뷰 에러:', reviewsError);
+        console.log('========================');
+    }, [movieId, movie, reviews, reviewsLoading, reviewsError]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -28,7 +42,8 @@ const MovieReview = () => {
         }
 
         setSubmitting(true);
-        const result = await addReview(rating, comment);
+        // ✅ 영화 제목도 함께 전달
+        const result = await addReview(rating, comment, movie?.title || movie?.name);
         if (result.success) {
             setRating(5);
             setComment('');
@@ -137,6 +152,8 @@ const MovieReview = () => {
                     <ReviewList>
                         {reviewsLoading ? (
                             <LoadingText>리뷰를 불러오는 중...</LoadingText>
+                        ) : reviewsError ? (
+                            <ErrorReview>❌ {reviewsError}</ErrorReview>
                         ) : reviews.length === 0 ? (
                             <EmptyReview>아직 리뷰가 없습니다. 첫 리뷰를 남겨보세요!</EmptyReview>
                         ) : (
@@ -425,6 +442,14 @@ const EmptyReview = styled.div`
     text-align: center;
     padding: 40px;
     color: #666;
+`;
+
+const ErrorReview = styled.div`
+    text-align: center;
+    padding: 40px;
+    color: #e50914;
+    background: rgba(229, 9, 20, 0.1);
+    border-radius: 8px;
 `;
 
 const ReviewCard = styled.div`
