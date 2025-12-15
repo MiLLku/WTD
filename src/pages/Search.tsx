@@ -4,6 +4,7 @@ import axios from '../api/axios';
 import requests from '../api/requests';
 import type { Movie, Genre } from '../types/tmdb';
 import { useWishlist } from '../hooks/useWishlist';
+import { useNavigate } from 'react-router-dom';
 
 const Search = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -12,7 +13,7 @@ const Search = () => {
     const [recentSearches, setRecentSearches] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>('');
-
+    const navigate = useNavigate();
     const { toggleWishlist } = useWishlist();
     const [selectedGenre, setSelectedGenre] = useState<string>('all');
     const [selectedRating, setSelectedRating] = useState<string>('all');
@@ -224,7 +225,7 @@ const Search = () => {
             ) : (
                 <MovieGrid>
                     {filteredMovies.map((movie) => (
-                        <MovieCard key={movie.id} onClick={() => toggleWishlist(movie)}>
+                        <MovieCard key={movie.id}>
                             {movie.poster_path ? (
                                 <img
                                     src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
@@ -236,7 +237,16 @@ const Search = () => {
                             <Overlay>
                                 <h3>{movie.title || movie.name || 'Unknown'}</h3>
                                 <p>⭐ {movie.vote_average != null ? movie.vote_average.toFixed(1) : 'N/A'}</p>
-                                <WishText>❤️ 클릭하여 찜하기</WishText>
+
+                                {/* ✅ 버튼 추가 */}
+                                <ButtonGroup>
+                                    <ActionButton onClick={() => navigate(`/movie/${movie.id}/reviews`)}>
+                                        💬 리뷰/채팅
+                                    </ActionButton>
+                                    <ActionButton onClick={() => toggleWishlist(movie)}>
+                                        ❤️ 찜하기
+                                    </ActionButton>
+                                </ButtonGroup>
                             </Overlay>
                         </MovieCard>
                     ))}
@@ -443,12 +453,6 @@ const Overlay = styled.div`
     }
 `;
 
-const WishText = styled.p`
-    font-size: 12px;
-    color: #e50914;
-    margin-top: 5px;
-    font-weight: bold;
-`;
 
 const NoImage = styled.div`
     width: 100%;
@@ -458,4 +462,27 @@ const NoImage = styled.div`
     align-items: center;
     justify-content: center;
     color: #777;
+`;
+
+const ButtonGroup = styled.div`
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+`;
+
+const ActionButton = styled.button`
+    background: linear-gradient(135deg, #e50914 0%, #831010 100%);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: bold;
+    transition: all 0.2s;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(229, 9, 20, 0.4);
+    }
 `;

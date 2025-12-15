@@ -1,11 +1,11 @@
-﻿import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+﻿import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Home from './pages/Home';
 import Search from './pages/Search';
 import Wishlist from './pages/Wishlist';
 import SignIn from './pages/SignIn';
 import MovieReview from './pages/MovieReview';
-import Profile from './pages/Profile'; // ✅ 추가
+import Profile from './pages/Profile';
 
 function App() {
     return (
@@ -17,7 +17,7 @@ function App() {
                 <Route path="/wishlist" element={<Wishlist />} />
                 <Route path="/signin" element={<SignIn />} />
                 <Route path="/movie/:movieId/reviews" element={<MovieReview />} />
-                <Route path="/profile" element={<Profile />} /> {/* ✅ 추가 */}
+                <Route path="/profile" element={<Profile />} />
             </Routes>
         </Router>
     );
