@@ -7,10 +7,10 @@ import {
     query,
     serverTimestamp,
     onSnapshot,
-} from 'firebase/firestore'; // ✅ getDocs 제거
+} from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { useAuth } from './useAuth';
-import type { Movie } from '../types/tmdb';
+import type { Movie } from '../types/types';
 
 export const useWishlist = () => {
     const { user } = useAuth();

@@ -4,6 +4,9 @@ import { db } from '../config/firebase';
 import { useAuth } from './useAuth';
 import type { Review } from '../types/types';
 
+// Review 타입을 다시 export (ReviewCard에서 사용)
+export type { Review } from '../types/types';
+
 export const useReviews = (movieId: number) => {
     const { user } = useAuth();
     const [reviews, setReviews] = useState<Review[]>([]);

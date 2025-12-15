@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { MovieDetail } from '../types/types';
-
+export type { Review } from '../types/types';
 export const useMovieDetail = (movieId: string) => {
     const [movie, setMovie] = useState<MovieDetail | null>(null);
     const [loading, setLoading] = useState(true);

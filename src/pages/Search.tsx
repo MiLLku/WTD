@@ -2,7 +2,7 @@
 import styled from 'styled-components';
 import axios from '../api/axios';
 import requests from '../api/requests';
-import type { Movie, Genre } from '../types/tmdb';
+import type { Movie, Genre } from '../types/types';
 import { useWishlist } from '../hooks/useWishlist';
 import { useNavigate } from 'react-router-dom';
 

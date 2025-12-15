@@ -1,6 +1,6 @@
 ﻿import styled from 'styled-components';
 import { motion } from 'framer-motion';
-import type { Review } from '../hooks/useReviews';
+import type { Review } from '../types/types';
 import { useAuth } from '../hooks/useAuth';
 
 interface ReviewCardProps {
@@ -13,11 +13,10 @@ interface ReviewCardProps {
 const ReviewCard = ({ review, onEdit, onDelete, onLike }: ReviewCardProps) => {
     const { user } = useAuth();
     const isMyReview = user?.uid === review.userId;
-    const hasLiked = user ? review.likes.includes(user.uid) : false;
+    const hasLiked = user ? review.likes?.includes(user.uid) : false;
 
     const formatDate = (timestamp: any) => {
         if (!timestamp) return '';
-        // ✅ 타입 충돌 해결: Date 대신 reviewDate로 변경
         const reviewDate = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
         return reviewDate.toLocaleDateString('ko-KR', {
             year: 'numeric',
@@ -49,15 +48,17 @@ const ReviewCard = ({ review, onEdit, onDelete, onLike }: ReviewCardProps) => {
 
             {review.spoiler && <SpoilerWarning>⚠️ 스포일러 포함</SpoilerWarning>}
 
-            <Content $spoiler={review.spoiler}>{review.content}</Content>
+            <Content $spoiler={review.spoiler || false}>
+                {review.content || review.comment}
+            </Content>
 
             <CardFooter>
                 <LikeButton
                     onClick={() => onLike?.(review.id)}
-                    $liked={hasLiked}
+                    $liked={hasLiked || false}
                     disabled={!user}
                 >
-                    {hasLiked ? '❤️' : '🤍'} {review.likes.length}
+                    {hasLiked ? '❤️' : '🤍'} {review.likes?.length || 0}
                 </LikeButton>
 
                 {isMyReview && (
@@ -114,7 +115,6 @@ const UserName = styled.div`
     color: white;
 `;
 
-// ✅ Date → DateText로 변경 (타입 충돌 해결)
 const DateText = styled.div`
     font-size: 0.85rem;
     color: #999;

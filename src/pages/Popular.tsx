@@ -26,7 +26,7 @@ const Popular = () => {
                         )}
                         <Overlay>
                             <h3>{movie.title || movie.name}</h3>
-                            <p>⭐ {movie.vote_average.toFixed(1)}</p>
+                            <p>⭐ {movie.vote_average?.toFixed(1) || 'N/A'}</p>
                             <WishText>❤️ 클릭하여 찜하기</WishText>
                         </Overlay>
                     </MovieCard>

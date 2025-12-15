@@ -3,14 +3,12 @@ import styled from 'styled-components';
 import requests from '../api/requests';
 import Banner from '../components/Banner';
 import Row from '../components/Row';
-import type { Movie } from '../types/tmdb';
+import type { Movie } from '../types/types';
 
 const Home = () => {
-    // ✅ 부모 컴포넌트에서 자식으로부터 받은 데이터를 관리
     const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
     const [lastClickedCategory, setLastClickedCategory] = useState<string>('');
 
-    // ✅ Bottom-Up: 자식 컴포넌트(Row)로부터 영화 클릭 이벤트를 받는 콜백
     const handleMovieClick = (movie: Movie, category: string) => {
         setSelectedMovie(movie);
         setLastClickedCategory(category);
@@ -19,10 +17,8 @@ const Home = () => {
 
     return (
         <HomeContainer>
-            {/* 1. 대형 배너 */}
             <Banner />
 
-            {/* ✅ 선택된 영화 정보 표시 (Bottom-Up 이벤트 전달 결과) */}
             {selectedMovie && (
                 <SelectedMovieInfo>
                     <InfoTitle>🎬 최근 클릭한 영화</InfoTitle>
@@ -34,7 +30,6 @@ const Home = () => {
                 </SelectedMovieInfo>
             )}
 
-            {/* 2. 영화 목록 슬라이더들 - ✅ onMovieClick 콜백 전달 */}
             <Row
                 title="넷플릭스 오리지널"
                 id="NO"
@@ -95,7 +90,6 @@ const HomeContainer = styled.div`
     min-height: 100vh;
 `;
 
-// ✅ 선택된 영화 정보 표시 영역 (Bottom-Up 이벤트 결과)
 const SelectedMovieInfo = styled.div`
     background: linear-gradient(135deg, #e50914 0%, #831010 100%);
     color: white;

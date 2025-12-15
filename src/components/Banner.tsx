@@ -2,7 +2,7 @@
 import styled from 'styled-components';
 import axios from '../api/axios';
 import requests from '../api/requests';
-import type { Movie, TMDBResponse } from '../types/tmdb';
+import type { Movie, TMDBResponse } from '../types/types';
 
 const Banner = () => {
     const [movie, setMovie] = useState<Movie | null>(null);

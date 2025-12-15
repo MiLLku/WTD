@@ -1,7 +1,6 @@
 ﻿import { useState, useEffect } from 'react';
 import axios from '../api/axios';
-// 'type' 키워드를 추가해주세요
-import type { Movie, TMDBResponse } from '../types/tmdb';
+import type { Movie, TMDBResponse } from '../types/types';
 
 // URL만 넘기면 데이터를 가져와주는 마법의 훅
 export const useFetch = (fetchUrl: string) => {
