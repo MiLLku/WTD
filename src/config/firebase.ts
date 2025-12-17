@@ -1,6 +1,6 @@
 ﻿// Firebase SDK 임포트
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, GithubAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getDatabase } from 'firebase/database';
 import { getStorage } from 'firebase/storage';
@@ -27,7 +27,6 @@ export const storage = getStorage(app);        // Storage
 
 // 소셜 로그인 프로바이더 설정
 export const googleProvider = new GoogleAuthProvider();
-export const githubProvider = new GithubAuthProvider();
 
 // Firebase 앱 객체 내보내기
 export default app;
